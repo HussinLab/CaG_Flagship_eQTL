@@ -44,7 +44,7 @@ cd <path_to_eqtl_browser>/fivex/data/cartagene_ge
 #CaG list :
 #Created from R scripts in which Cartagene dataset was all compiled. This is in reality only the concatenated table from tensorQTL with an additional column that can just be ignored.
 
-cp /lustre06/project/6065672/shared/Cartagene/flagship_paper/eQTLs/work_on_911_SampleFilters_after/tensorQTL/output_withHLA/gwas_covariates/FDR_per_GENE/all_chr.fdr5perc_perGene.tsv .
+cp <path_to_eqtl_results>/all_chr.fdr5perc_perGene.tsv .
 
 
 #NEED THIS HEADER : 
@@ -71,7 +71,7 @@ awk '{ type="SNP" ; if(length($3) > 1 || length($4) > 1 ) type="INDEL" ; print t
 #GTEx list :
 
 #From the significant GTEx results (v8 version) :
-cp /lustre06/project/6065672/shared/GTex/v8/cis_eQTLs/global/GTEx_Analysis_v8_eQTL/Whole_Blood.v8.signif_variant_gene_pairs.txt.gz .
+cp <path_to_GTEx_Analysis_v8_eQTL>/Whole_Blood.v8.signif_variant_gene_pairs.txt.gz .
 
 #remove _b38 so we have variants compatible with our version and remove the gene version
 gunzip -c Whole_Blood.v8.signif_variant_gene_pairs.txt.gz | sed -e 's/_b38//' -e 's/\t\(ENS\S\+\)\.[0-9]\+\t/\t\1\t/' > GTEx_ge_blood.all.tsv.tmp
@@ -101,14 +101,11 @@ cat <(sed '1d' CaG.variants.inOrder.tsv) <(sed '1d' GTEx.blood.variants.inOrder.
 cat CaG.allVariants.uniq.tsv | awk '{print $1"\t"$2-1"\t"$2"\t"$3"\t"$4}' | sed '1d' > CaG.allVariants.uniq.bed
 
 #extract the right information in the good order from dbSNP file
-gunzip -c /lustre06/project/6005588/shared/References/GRCh38/dbSNP/dbsnp151.GRCh38.00-All.vcf.gz | grep -vP "^#" | awk '{print $1"\t"$2"\t"$4"\t"$5"\t"$3}' > /lustre06/project/6005588/shared/References/GRCh38/dbSNP/dbsnp151.GRCh38.tsv 
+gunzip -c <path_to_dbsnp_data>/dbsnp151.GRCh38.00-All.vcf.gz | grep -vP "^#" | awk '{print $1"\t"$2"\t"$4"\t"$5"\t"$3}' > dbsnp151.GRCh38.tsv 
 
 #index the file to do a query
-bgzip /lustre06/project/6005588/shared/References/GRCh38/dbSNP/dbsnp151.GRCh38.tsv
-tabix -s 1 -b 2 -e 2 /lustre06/project/6005588/shared/References/GRCh38/dbSNP/dbsnp151.GRCh38.tsv.gz
-
-#copy in the working directory :
-cp /lustre06/project/6005588/shared/References/GRCh38/dbSNP/dbsnp151.GRCh38.tsv.gz* .
+bgzip dbsnp151.GRCh38.tsv
+tabix -s 1 -b 2 -e 2 dbsnp151.GRCh38.tsv.gz
 
 #do the query of CaG variants :
 tabix -R CaG.allVariants.uniq.bed dbsnp151.GRCh38.tsv.gz > CaG.allVariants.uniq.dbSNP.annot.tsv
@@ -453,7 +450,7 @@ zcat chr$f.ge.credible_set.tsv.gz | cut -f 3,4 > chr$f.ensIDs_Pos.txt
 echo "library(dplyr)
 test=read.table(\"chr$f.ensIDs_Pos.txt\",h=F)
 names(test)=c(\"ENSID\",\"chr_pos_ref_alt\")
-gene_names=read.table(\"/lustre06/project/6065672/shared/Cartagene/flagship_paper/eQTLs/geneConversion.txt\",h=F)
+gene_names=read.table(\"<path_to_eqtl_files>/geneConversion.txt\",h=F)
 annotations=read.table(\"<path_to_eqtl_browser>/fivex/data/cartagene_ge/CaG.allVariants.uniq.dbSNP.annot.2cols.tsv\",h=F)
 names(annotations)=c(\"chr_pos_ref_alt\",\"id\")
 names(gene_names)=c(\"ENSID\",\"HUGO\")
@@ -563,14 +560,14 @@ done
 #example : table sig
 #header seems to be : 
 #pvalue|dataset|tissue|GENE|chr|pos|ref|alt|NA|CS|CSsize
-0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108776183|C|T|L2|127
-0.0150511076419484|Quach_2016|monocyte_R848|ENSG00000116266|1|108777306|A|G|L1|18
-0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108777768|T|C|L2|127
-0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778306|T|G|L2|127
-0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778623|G|A|L2|127
-0.00872929319149929|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778690|T|TTATA|L2|127
-0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778722|A|T|L2|127
-0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778735|T|C|L2|127
+#0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108776183|C|T|L2|127
+#0.0150511076419484|Quach_2016|monocyte_R848|ENSG00000116266|1|108777306|A|G|L1|18
+#0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108777768|T|C|L2|127
+#0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778306|T|G|L2|127
+#0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778623|G|A|L2|127
+#0.00872929319149929|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778690|T|TTATA|L2|127
+#0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778722|A|T|L2|127
+#0.00657144529019305|BLUEPRINT_SE|monocyte|ENSG00000116266|1|108778735|T|C|L2|127
 
 
 #ENSG00000227232 1       10433   ACCCTAAC        ACCCCTAAC       chr1_10433_ACCCTAAC_ACCCCTAAC   56      0.0575396865606308      0.00253663452912465     0.403804987668991    0.132967531681061       INDEL   58      1007    1       ENSG00000227232 ENSG00000227232 0       chr1_10433_ACCCTAAC_ACCCCTAAC
